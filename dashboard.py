@@ -4,6 +4,12 @@ import yfinance as yf
 import yaml
 import os
 import time
+import logging
+import threading
+
+# Import your underlying algorithmic engines
+from logger_config import setup_logging
+from portfolio_manager import run_portfolio_selection
 
 # --- PAGE CONFIGURATION & THEME ---
 st.set_page_config(
@@ -13,7 +19,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS to hide Streamlit's default top menu and footer for a cleaner "app" feel
+# Custom CSS to hide Streamlit's default elements for a cleaner "app" feel
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -22,6 +28,71 @@ st.markdown("""
     .block-container {padding-top: 2rem; padding-bottom: 0rem;}
     </style>
 """, unsafe_allow_html=True)
+
+# --- ENGINE LOGIC (FORMERLY MAIN.PY) ---
+def fetch_sp500_tickers() -> list:
+    """Scrapes current S&P 500 component tickers from Wikipedia safely."""
+    try:
+        url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        tables = pd.read_html(url, storage_options=headers)
+        df = tables[0]
+        return [ticker.replace('.', '-') for ticker in df['Symbol'].tolist()]
+    except Exception as e:
+        logging.error(f"Failed to fetch dynamic S&P 500 universe: {e}")
+        return ["AAPL", "MSFT", "GOOGL", "NVDA", "AMD", "META", "AMZN", "JPM", "V", "XOM"]
+
+def run_autonomous_quant_scan():
+    """Runs the full multi-factor scoring loop directly inside Streamlit Cloud."""
+    setup_logging()
+    kill_switch = threading.Event()
+    
+    logging.info("🚀 Streamlit Cloud triggered execution loop.")
+    full_universe = fetch_sp500_tickers()
+    total_tickers = len(full_universe)
+    
+    BATCH_SIZE = 25    
+    REST_PERIOD = 30   # Dropped slightly for faster cloud UI response times
+    compiled_portfolio = []
+    
+    # UI visual feedback container
+    status_box = st.empty()
+    progress_bar = st.progress(0.0)
+    
+    try:
+        for i in range(0, total_tickers, BATCH_SIZE):
+            current_batch = full_universe[i:i + BATCH_SIZE]
+            batch_index = (i // BATCH_SIZE) + 1
+            total_batches = (total_tickers + BATCH_SIZE - 1) // BATCH_SIZE
+            
+            status_box.info(f"🧬 Processing Batch {batch_index}/{total_batches} • Evaluating {len(current_batch)} assets...")
+            progress_bar.progress(i / total_tickers)
+            
+            # Execute backend cross-threading feature metrics
+            batch_approved_assets = run_portfolio_selection(current_batch, kill_switch_event=kill_switch)
+            compiled_portfolio.extend(batch_approved_assets)
+            
+            if i + BATCH_SIZE < total_tickers:
+                time.sleep(1) # Soft break to yield CPU time smoothly
+                
+        final_portfolio_state = list(set(compiled_portfolio))
+        
+        # Save output state to local file storage for dashboard parsing
+        pd.DataFrame({"ticker": final_portfolio_state}).to_csv("live_portfolio_state.csv", index=False)
+        logging.info(f"✅ Scanning Cycle Terminated. Equilibrium Allocations: {final_portfolio_state}")
+        
+        status_box.empty()
+        progress_bar.empty()
+        st.success("✨ Autonomous Market Scan Completed Successfully!")
+        time.sleep(2)
+        st.rerun()
+        
+    except Exception as e:
+        logging.error(f"Error encountered during runtime selection loop: {e}")
+        status_box.empty()
+        progress_bar.empty()
 
 # --- UTILITY FUNCTIONS ---
 @st.cache_data(ttl=60, show_spinner=False)
@@ -66,7 +137,7 @@ def load_logs(lines=25):
                 return "".join(file.readlines()[-lines:])
         except Exception:
             pass
-    return "No logs generated yet... System is waiting for pipeline execution."
+    return "No logs generated yet... System waiting for action trigger."
 
 # --- INITIALIZE DATA ---
 config = load_config()
@@ -80,11 +151,10 @@ st.divider()
 
 # --- UI: SIDEBAR CONTROL PANEL ---
 st.sidebar.title("⚙️ Engine Controls")
-st.sidebar.caption("Modifying values updates the local config.yaml environment.")
+st.sidebar.caption("Modifying values updates the application environment configs.")
 
 if config:
     with st.sidebar.form("config_editor", border=False):
-        
         with st.expander("🔌 API & Execution", expanded=True):
             enable_live = st.toggle("Enable Live Schwab Trades", value=config.get("schwab_api", {}).get("enable_live_trades", False))
             max_workers = st.number_input("Max Parallel Workers", min_value=1, max_value=20, value=config.get("portfolio_management", {}).get("max_workers", 10))
@@ -104,6 +174,12 @@ if config:
             else:
                 st.toast("Failed to write to config.yaml", icon="❌")
 
+# Add a dedicated Manual Scanner button on the sidebar
+st.sidebar.write("---")
+st.sidebar.subheader("🚀 Manual Override")
+if st.sidebar.button("🤖 Run Core Engine Optimization", width="stretch", type="primary"):
+    run_autonomous_quant_scan()
+
 # --- UI: TOP KPI METRICS ---
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Active Tracked Assets", len(tickers_list), "Live")
@@ -112,7 +188,7 @@ col3.metric("Schwab API Connection", "PRODUCTION" if config.get("schwab_api", {}
             delta_color="normal" if config.get("schwab_api", {}).get("enable_live_trades") else "off")
 col4.metric("Engine Health", "100%", "Stable")
 
-st.write("") # Spacer
+st.write("") 
 
 # --- UI: MAIN DASHBOARD TABS ---
 tab1, tab2, tab3 = st.tabs(["📊 Live Portfolio Holdings", "🧬 Core Architecture", "🖥️ System Logs"])
@@ -124,7 +200,6 @@ with tab1:
         with st.spinner("Fetching real-time market data..."):
             live_prices = fetch_live_prices(tickers_list)
             
-        # Build a sleek display dataframe
         display_data = []
         for ticker in tickers_list:
             price = live_prices.get(ticker, "Fetching...")
@@ -140,13 +215,12 @@ with tab1:
 
 with tab2:
     col_arch1, col_arch2 = st.columns([3, 2])
-    
     with col_arch1:
         st.markdown("#### ⚖️ Multi-Factor Feature Weights")
         if config and "valuation_weights" in config:
             weights = config["valuation_weights"]
             df_w = pd.DataFrame(list(weights.items()), columns=["Factor", "Influence Weight"])
-            st.bar_chart(df_w.set_index("Factor"), color="#00ff00") # Adds a nice terminal green color
+            st.bar_chart(df_w.set_index("Factor"), color="#00ff00")
             
     with col_arch2:
         st.markdown("#### 🔍 Model Diagnostics")
