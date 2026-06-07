@@ -1,0 +1,32 @@
+# config.yaml
+schwab_api:
+  base_url: "https://api.schwabapi.com/trader/v1"
+  token_url: "https://api.schwabapi.com/v1/oauth/token"
+  
+  # Structural trade capability permissions to ensure authorization code grant generation
+  requested_scopes: "readonly PlaceTrades"
+  
+  # Defaults to false for sandboxed simulations; set to true only after extensive validation
+  enable_live_trades: false
+  
+  auth_url: "https://api.schwabapi.com/v1/oauth/authorize"
+  
+  # Sync this string exactly with your Schwab developer settings:
+  redirect_uri: "https://127.0.0.1:8080/callback"
+  oauth_flow: "authorization_code"
+
+ml:
+  fallback_valuation_threshold: 0.0
+  buy_threshold: 0.40
+
+portfolio_management:
+  sell_losers: true
+  sell_trigger_threshold: 0.40
+  max_workers: 10
+  cik_cache_ttl_seconds: 86400
+
+valuation_weights:
+  sentiment: 0.40
+  value: 0.30
+  growth: 0.20
+  governance: 0.10

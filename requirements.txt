@@ -1,0 +1,10 @@
+PyYAML
+python-dotenv
+requests
+pandas
+scikit-learn
+joblib
+numpy
+streamlit
+lxml
+yfinance
