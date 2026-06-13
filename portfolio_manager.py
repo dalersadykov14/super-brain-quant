@@ -1,4 +1,3 @@
-# portfolio_manager.py
 import os
 import logging
 import pandas as pd
@@ -8,13 +7,12 @@ import socketserver
 import urllib.parse
 import threading
 import time
-import random
 import secrets
 import hashlib
 import base64
-import yaml  # Added to ensure raw, non-cached disk reads
+import yaml  
 
-from valuation_engine import valuation_model  # Kept math engine
+from valuation_engine import valuation_model  
 from ml_inference import ml_decision
 from data_ingestion import get_ticker_data, safe_fetch_data
 from parallel_runner import process_tickers_parallel
@@ -24,8 +22,8 @@ try:
 except ModuleNotFoundError:
     requests = None
 
-# 🟢 CRITICAL FIX: Guarantee a pure, completely un-cached configuration parse from disk
 def fresh_load_config() -> dict:
+    """Guarantee a pure, completely un-cached configuration parse from disk."""
     if os.path.exists("config.yaml"):
         try:
             with open("config.yaml", "r") as file:
@@ -37,11 +35,9 @@ def fresh_load_config() -> dict:
 class SchwabExecutionClient:
     """Directly manages secure authentication protocol tokens and routes execution orders."""
     def __init__(self):
-        # Account ID and tokens remain stateful across execution loops
         self.account_id = os.getenv("SCHWAB_ACCOUNT_ID", "SIMULATED_ACC_ID")
         self.access_token = None 
 
-    # 🟢 CRITICAL FIX: Turned config into a live property to defeat Streamlit singleton memory caching
     @property
     def config(self) -> dict:
         return fresh_load_config().get("schwab_api", {})
@@ -58,7 +54,6 @@ class SchwabExecutionClient:
 
         current_config = self.config
 
-        # Prefer Authorization Code Flow for retail Schwab accounts
         if current_config.get("oauth_flow") == "authorization_code":
             client_id = os.getenv("SCHWAB_CLIENT_ID")
             client_secret = os.getenv("SCHWAB_CLIENT_SECRET")
@@ -70,14 +65,11 @@ class SchwabExecutionClient:
                 logging.error("Missing SCHWAB_CLIENT_ID / redirect config for authorization_code flow.")
                 return
 
-            # PKCE: generate a code verifier and challenge
-            code_verifier = secrets.token_urlsafe(64)
-            code_verifier = code_verifier[:128]
+            code_verifier = secrets.token_urlsafe(64)[:128]
             code_challenge = base64.urlsafe_b64encode(
                 hashlib.sha256(code_verifier.encode("utf-8")).digest()
             ).decode("utf-8").rstrip("=")
 
-            # Build consent URL
             state = secrets.token_urlsafe(16)
             params = {
                 "response_type": "code",
@@ -89,8 +81,6 @@ class SchwabExecutionClient:
                 "code_challenge_method": "S256"
             }
             consent_url = auth_url + "?" + urllib.parse.urlencode(params)
-
-            # Local HTTP server to capture the redirect with code
             code_container = {"code": None, "state": None}
 
             class OAuthHandler(http.server.BaseHTTPRequestHandler):
@@ -106,9 +96,14 @@ class SchwabExecutionClient:
                     self.end_headers()
                     self.wfile.write(b"Authorization received. You can close this window.")
 
+                def log_message(self, format, *args):
+                    return # Suppress built-in standard HTTP logging clutter in console
+
             parsed = urllib.parse.urlparse(redirect_uri)
             server_address = (parsed.hostname, parsed.port)
 
+            # 🟢 FIX: Force local socket reuse parameters to prevent TCP port binding lockout crashes
+            socketserver.TCPServer.allow_reuse_address = True
             httpd = socketserver.TCPServer(server_address, OAuthHandler)
 
             def _serve():
@@ -123,7 +118,6 @@ class SchwabExecutionClient:
             logging.info(f"Opening browser for Schwab authorization: {consent_url}")
             webbrowser.open(consent_url)
 
-            # Wait for redirect or timeout
             waited = 0
             while waited < timeout_seconds and code_container["code"] is None:
                 time.sleep(1)
@@ -136,7 +130,6 @@ class SchwabExecutionClient:
                 logging.error("Authorization code not received within timeout period.")
                 return
 
-            # Exchange code for token using PKCE verifier
             try:
                 token_data = {
                     "grant_type": "authorization_code",
@@ -161,7 +154,7 @@ class SchwabExecutionClient:
                 logging.error(f"Error exchanging authorization code for token: {e}")
             return
 
-        # Fallback: client_credentials (may not be supported for retail accounts)
+        # Fallback processing block
         url = current_config["token_url"]
         payload = {
             'grant_type': 'client_credentials',
@@ -180,17 +173,7 @@ class SchwabExecutionClient:
             else:
                 logging.error(f"Schwab Authorization Pipeline failure: HTTP Status Code {response.status_code}")
         except Exception as e:
-            logging.error(f"Critical execution connection error during Schwab handshake sequence: {e}")
-
-    def perform_token_handshake(self, timeout_seconds: int = 180) -> bool:
-        """Performs a non-destructive PKCE auth code handshake without placing any orders."""
-        logging.info("Starting Schwab PKCE token-only handshake.")
-        self._refresh_oauth_token(timeout_seconds=timeout_seconds)
-        if self.access_token:
-            logging.info("Schwab PKCE handshake completed successfully.")
-            return True
-        logging.error("Schwab PKCE handshake failed; no access token was obtained.")
-        return False
+            logging.error(f"Critical execution error during fallback token sequence: {e}")
 
     def execute_order(self, ticker: str, instruction: str) -> bool:
         """Constructs and passes execution trade payloads directly to Schwab Retail Gateways."""
@@ -198,14 +181,10 @@ class SchwabExecutionClient:
             logging.warning(f"Schwab live trading disabled via config. Sandbox simulation mode active for {instruction} {ticker}.")
             return True
 
-        if requests is None:
-            logging.error("Requests library unavailable; cannot execute Schwab order.")
-            return False
-
-        if not self.access_token:
+        if requests is None or not self.access_token:
             self._refresh_oauth_token()
             if not self.access_token:
-                logging.error("Unable to obtain Schwab access token. Order not executed.")
+                logging.error("Unable to obtain valid Schwab credentials header mapping. Aborting order.")
                 return False
 
         logging.info(f"API INSTRUCTION SENT: Transmitting {instruction} action for {ticker} over Schwab Portal.")
@@ -241,7 +220,6 @@ class SchwabExecutionClient:
             logging.error(f"Schwab order execution error: {e}")
             return False
 
-# Lazy singleton initialization pattern
 _schwab_broker = None
 
 def get_schwab_broker():
@@ -250,20 +228,20 @@ def get_schwab_broker():
         _schwab_broker = SchwabExecutionClient()
     return _schwab_broker
 
-def execute_portfolio_rebalance(current_holdings: list, config: dict) -> list:
+def execute_portfolio_rebalance(current_holdings: list, config: dict, active_threshold: float) -> list:
     """Liquidation pass drops tracking validation for decaying assets."""
     if not config.get("portfolio_management", {}).get("sell_losers", False):
         return current_holdings
 
     retained_portfolio = []
-    sell_threshold = config["portfolio_management"].get("sell_trigger_threshold", 0.40)
+    sell_threshold = active_threshold
     
-    logging.info(f"Evaluating portfolio quality metrics across {len(current_holdings)} active holdings against Sell Threshold={sell_threshold}")
+    logging.info(f"Evaluating portfolio quality metrics against Active Threshold={sell_threshold}")
 
     for ticker in current_holdings:
         data = safe_fetch_data(get_ticker_data, ticker)
         if data is None:
-            retained_portfolio.append(ticker) # Safe-side hold if external network endpoints fail
+            retained_portfolio.append(ticker) 
             continue
             
         val_score = valuation_model(data)
@@ -272,7 +250,7 @@ def execute_portfolio_rebalance(current_holdings: list, config: dict) -> list:
         if viable:
             retained_portfolio.append(ticker)
         else:
-            logging.warning(f"LIQUIDATION PASS ACTION: {ticker} score decayed. Routing a liquidation order.")
+            logging.warning(f"LIQUIDATION PASS ACTION: {ticker} score decayed below threshold. Triggering sale pipeline.")
             if get_schwab_broker().execute_order(ticker, "SELL"):
                 logging.info(f"Successfully closed exposure position for asset: {ticker}")
             else:
@@ -281,13 +259,7 @@ def execute_portfolio_rebalance(current_holdings: list, config: dict) -> list:
     return retained_portfolio
 
 def run_portfolio_selection(ticker_dataset: list, kill_switch_event=None) -> list:
-    """Main execution workflow pipeline loops (Brief Sec. 8)."""
-    # 🟢 MODIFIED: Explicitly bypass the cached loader to gather accurate live values
-    config = fresh_load_config()
-    buy_threshold = config.get("ml", {}).get("buy_threshold", 0.55)
-    max_workers = config.get("portfolio_management", {}).get("max_workers", 10)
-    
-    # 🟢 MODIFIED: Seed tracking arrays with historical state data instead of resetting to []
+    """Executes state-driven allocation sweeps using live config values resolved at each step iteration."""
     if os.path.exists("live_portfolio_state.csv"):
         try:
             df_exist = pd.read_csv("live_portfolio_state.csv")
@@ -302,36 +274,35 @@ def run_portfolio_selection(ticker_dataset: list, kill_switch_event=None) -> lis
 
     while current_cycle <= max_protection_limit:
         if kill_switch_event and kill_switch_event.is_set():
-            logging.warning("System termination flag received via app Kill Switch Event.")
             break
             
-        logging.info(f"===== STARTING STATE ENGINE PASS CYCLE: {current_cycle} (Using Buy Cutoff={buy_threshold}) =====")
+        # 🟢 FIX: Pull a fresh configuration dict at the start of *every* pass loop cycle 
+        # to catch mid-runtime manual slider parameter updates instantly.
+        live_config = fresh_load_config()
         
-        # Step 1: Manage liquidation requirements across existing assets
-        current_holdings = execute_portfolio_rebalance(current_holdings, config)
+        # 🟢 FIX: Check both nested paths ("ml" namespace AND root level) to avoid mapping configuration bugs
+        buy_threshold = live_config.get("ml", {}).get("buy_threshold", live_config.get("buy_threshold", 0.51))
+        max_workers = live_config.get("portfolio_management", {}).get("max_workers", 10)
         
-        # Step 2: Extract and process new asset targets
+        logging.info(f"===== STARTING STATE ENGINE PASS CYCLE: {current_cycle} (Using Active Cutoff={buy_threshold}) =====")
+        
+        current_holdings = execute_portfolio_rebalance(current_holdings, live_config, buy_threshold)
+        
         unowned_candidates = [t for t in ticker_dataset if t not in current_holdings]
         if not unowned_candidates:
-            logging.info("Every provided portfolio target is actively allocated. Loop complete.")
             break
             
         approved_buys = process_tickers_parallel(unowned_candidates, buy_threshold, max_workers)
         
-        # Step 3: Run execution routers on new asset target purchases
         new_buys_count = 0
         for ticker in approved_buys:
             if get_schwab_broker().execute_order(ticker, "BUY"):
                 current_holdings.append(ticker)
                 new_buys_count += 1
 
-        # Persist state parameters locally
         pd.DataFrame(current_holdings, columns=["ticker"]).to_csv("live_portfolio_state.csv", index=False)
-        logging.info(f"Pipeline State Complete: Tracked Assets={len(current_holdings)} | Processed Buys={new_buys_count}")
         
-        # Convergence Check: If composition stops shifting, safely exit the run
         if new_buys_count == 0:
-            logging.info("Portfolio state equilibrium achieved. Exiting tracking loop cleanly.")
             break
             
         current_cycle += 1
