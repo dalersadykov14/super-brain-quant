@@ -12,7 +12,9 @@ import random
 import secrets
 import hashlib
 import base64
-from valuation_engine import load_config, valuation_model
+import yaml  # Added to ensure raw, non-cached disk reads
+
+from valuation_engine import valuation_model  # Kept math engine
 from ml_inference import ml_decision
 from data_ingestion import get_ticker_data, safe_fetch_data
 from parallel_runner import process_tickers_parallel
@@ -22,13 +24,31 @@ try:
 except ModuleNotFoundError:
     requests = None
 
+# 🟢 CRITICAL FIX: Guarantee a pure, completely un-cached configuration parse from disk
+def fresh_load_config() -> dict:
+    if os.path.exists("config.yaml"):
+        try:
+            with open("config.yaml", "r") as file:
+                return yaml.safe_load(file) or {}
+        except Exception as e:
+            logging.error(f"Failed to access config.yaml safely: {e}")
+    return {}
+
 class SchwabExecutionClient:
     """Directly manages secure authentication protocol tokens and routes execution orders."""
     def __init__(self):
-        self.config = load_config()["schwab_api"]
-        self.base_url = self.config["base_url"]
+        # Account ID and tokens remain stateful across execution loops
         self.account_id = os.getenv("SCHWAB_ACCOUNT_ID", "SIMULATED_ACC_ID")
         self.access_token = None 
+
+    # 🟢 CRITICAL FIX: Turned config into a live property to defeat Streamlit singleton memory caching
+    @property
+    def config(self) -> dict:
+        return fresh_load_config().get("schwab_api", {})
+
+    @property
+    def base_url(self) -> str:
+        return self.config.get("base_url", "https://api.schwab.com/v1")
 
     def _refresh_oauth_token(self, timeout_seconds: int = 180):
         """Requests high-security tokens utilizing verified environment configuration setups."""
@@ -36,13 +56,15 @@ class SchwabExecutionClient:
             logging.error("Requests library unavailable; cannot refresh Schwab OAuth token.")
             return
 
+        current_config = self.config
+
         # Prefer Authorization Code Flow for retail Schwab accounts
-        if self.config.get("oauth_flow") == "authorization_code":
+        if current_config.get("oauth_flow") == "authorization_code":
             client_id = os.getenv("SCHWAB_CLIENT_ID")
             client_secret = os.getenv("SCHWAB_CLIENT_SECRET")
-            redirect_uri = self.config.get("redirect_uri")
-            auth_url = self.config.get("auth_url")
-            scope = self.config.get("requested_scopes")
+            redirect_uri = current_config.get("redirect_uri")
+            auth_url = current_config.get("auth_url")
+            scope = current_config.get("requested_scopes")
 
             if not (client_id and redirect_uri and auth_url):
                 logging.error("Missing SCHWAB_CLIENT_ID / redirect config for authorization_code flow.")
@@ -127,7 +149,7 @@ class SchwabExecutionClient:
                     token_data["client_secret"] = client_secret
 
                 token_res = requests.post(
-                    self.config["token_url"],
+                    current_config["token_url"],
                     data=token_data,
                     timeout=15
                 )
@@ -140,10 +162,10 @@ class SchwabExecutionClient:
             return
 
         # Fallback: client_credentials (may not be supported for retail accounts)
-        url = self.config["token_url"]
+        url = current_config["token_url"]
         payload = {
             'grant_type': 'client_credentials',
-            'scope': self.config.get("requested_scopes")
+            'scope': current_config.get("requested_scopes")
         }
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
@@ -173,7 +195,7 @@ class SchwabExecutionClient:
     def execute_order(self, ticker: str, instruction: str) -> bool:
         """Constructs and passes execution trade payloads directly to Schwab Retail Gateways."""
         if not self.config.get("enable_live_trades", False):
-            logging.warning("Schwab live trading disabled via config. Sandbox simulation mode active.")
+            logging.warning(f"Schwab live trading disabled via config. Sandbox simulation mode active for {instruction} {ticker}.")
             return True
 
         if requests is None:
@@ -229,14 +251,14 @@ def get_schwab_broker():
     return _schwab_broker
 
 def execute_portfolio_rebalance(current_holdings: list, config: dict) -> list:
-    """MISSING-9 IMPLEMENTED: Liquidation pass drops tracking validation for decaying assets."""
+    """Liquidation pass drops tracking validation for decaying assets."""
     if not config.get("portfolio_management", {}).get("sell_losers", False):
         return current_holdings
 
     retained_portfolio = []
     sell_threshold = config["portfolio_management"].get("sell_trigger_threshold", 0.40)
     
-    logging.info(f"Evaluating portfolio quality metrics across {len(current_holdings)} active holdings.")
+    logging.info(f"Evaluating portfolio quality metrics across {len(current_holdings)} active holdings against Sell Threshold={sell_threshold}")
 
     for ticker in current_holdings:
         data = safe_fetch_data(get_ticker_data, ticker)
@@ -254,27 +276,36 @@ def execute_portfolio_rebalance(current_holdings: list, config: dict) -> list:
             if get_schwab_broker().execute_order(ticker, "SELL"):
                 logging.info(f"Successfully closed exposure position for asset: {ticker}")
             else:
-                retained_portfolio.append(ticker) # Keep tracking local allocation index if API execution errors occur
+                retained_portfolio.append(ticker)
                 
     return retained_portfolio
 
 def run_portfolio_selection(ticker_dataset: list, kill_switch_event=None) -> list:
     """Main execution workflow pipeline loops (Brief Sec. 8)."""
-    config = load_config()
+    # 🟢 MODIFIED: Explicitly bypass the cached loader to gather accurate live values
+    config = fresh_load_config()
     buy_threshold = config.get("ml", {}).get("buy_threshold", 0.55)
     max_workers = config.get("portfolio_management", {}).get("max_workers", 10)
     
-    current_holdings = []
+    # 🟢 MODIFIED: Seed tracking arrays with historical state data instead of resetting to []
+    if os.path.exists("live_portfolio_state.csv"):
+        try:
+            df_exist = pd.read_csv("live_portfolio_state.csv")
+            current_holdings = df_exist["ticker"].dropna().astype(str).tolist()
+        except Exception:
+            current_holdings = []
+    else:
+        current_holdings = []
+        
     current_cycle = 1
     max_protection_limit = 5 
 
-    # RECURSION ERROR CORRECTED: Stateful while loop explicitly eliminates stack overflow vulnerability vectors
     while current_cycle <= max_protection_limit:
         if kill_switch_event and kill_switch_event.is_set():
             logging.warning("System termination flag received via app Kill Switch Event.")
             break
             
-        logging.info(f"===== STARTING STATE ENGINE PASS CYCLE: {current_cycle} =====")
+        logging.info(f"===== STARTING STATE ENGINE PASS CYCLE: {current_cycle} (Using Buy Cutoff={buy_threshold}) =====")
         
         # Step 1: Manage liquidation requirements across existing assets
         current_holdings = execute_portfolio_rebalance(current_holdings, config)
