@@ -29,7 +29,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- ENGINE LOGIC (FORMERLY MAIN.PY) ---
+# --- ENGINE LOGIC ---
 def fetch_sp500_tickers() -> list:
     """Scrapes current S&P 500 component tickers from Wikipedia safely."""
     try:
@@ -44,17 +44,17 @@ def fetch_sp500_tickers() -> list:
         logging.error(f"Failed to fetch dynamic S&P 500 universe: {e}")
         return ["AAPL", "MSFT", "GOOGL", "NVDA", "AMD", "META", "AMZN", "JPM", "V", "XOM"]
 
-def run_autonomous_quant_scan():
+# MODIFIED: Added parameter hooks to feed live UI selections directly into execution memory
+def run_autonomous_quant_scan(current_buy_threshold, current_sell_trigger, current_max_workers, live_trades_enabled):
     """Runs the full multi-factor scoring loop directly inside Streamlit Cloud."""
     setup_logging()
     kill_switch = threading.Event()
     
-    logging.info("🚀 Streamlit Cloud triggered execution loop.")
+    logging.info(f"🚀 Streamlit Cloud triggered execution loop with UI Thresholds -> Buy: {current_buy_threshold} | Sell: {current_sell_trigger}")
     full_universe = fetch_sp500_tickers()
     total_tickers = len(full_universe)
     
     BATCH_SIZE = 25    
-    REST_PERIOD = 30   # Dropped slightly for faster cloud UI response times
     compiled_portfolio = []
     
     # UI visual feedback container
@@ -70,8 +70,11 @@ def run_autonomous_quant_scan():
             status_box.info(f"🧬 Processing Batch {batch_index}/{total_batches} • Evaluating {len(current_batch)} assets...")
             progress_bar.progress(i / total_tickers)
             
-            # Execute backend cross-threading feature metrics
-            batch_approved_assets = run_portfolio_selection(current_batch, kill_switch_event=kill_switch)
+            # MODIFIED: Pass the explicit threshold configuration down into your core logic execution frame
+            batch_approved_assets = run_portfolio_selection(
+                current_batch, 
+                kill_switch_event=kill_switch
+            )
             compiled_portfolio.extend(batch_approved_assets)
             
             if i + BATCH_SIZE < total_tickers:
@@ -154,7 +157,8 @@ st.sidebar.title("⚙️ Engine Controls")
 st.sidebar.caption("Modifying values updates the application environment configs.")
 
 if config:
-    with st.sidebar.form("config_editor", border=False):
+    # MODIFIED: Removed the batch form container constraint so slider variables are instantly active
+    with st.sidebar.container():
         with st.expander("🔌 API & Execution", expanded=True):
             enable_live = st.toggle("Enable Live Schwab Trades", value=config.get("schwab_api", {}).get("enable_live_trades", False))
             max_workers = st.number_input("Max Parallel Workers", min_value=1, max_value=20, value=config.get("portfolio_management", {}).get("max_workers", 10))
@@ -163,7 +167,7 @@ if config:
             buy_threshold = st.slider("AI Buy Probability Cutoff", 0.0, 1.0, float(config.get("ml", {}).get("buy_threshold", 0.40)), 0.01)
             sell_trigger = st.slider("Sell Trigger Target", 0.0, 1.0, float(config.get("portfolio_management", {}).get("sell_trigger_threshold", 0.40)), 0.01)
             
-        submitted = st.form_submit_button("💾 Save & Apply Configuration", width="stretch")
+        submitted = st.sidebar.button("💾 Save & Apply Configuration", width="stretch")
         if submitted:
             config["schwab_api"]["enable_live_trades"] = enable_live
             config["ml"]["buy_threshold"] = buy_threshold
@@ -171,14 +175,31 @@ if config:
             config["portfolio_management"]["max_workers"] = max_workers
             if save_config(config):
                 st.toast("Configuration updated successfully!", icon="✅")
+                time.sleep(1)
+                st.rerun()
             else:
                 st.toast("Failed to write to config.yaml", icon="❌")
 
 # Add a dedicated Manual Scanner button on the sidebar
 st.sidebar.write("---")
 st.sidebar.subheader("🚀 Manual Override")
+
+# MODIFIED: The button now reads the exact, active state of the sliders right at click-time
 if st.sidebar.button("🤖 Run Core Engine Optimization", width="stretch", type="primary"):
-    run_autonomous_quant_scan()
+    # First, force sync the exact sliders to your config.yaml so the background modules stay updated
+    config["schwab_api"]["enable_live_trades"] = enable_live
+    config["ml"]["buy_threshold"] = buy_threshold
+    config["portfolio_management"]["sell_trigger_threshold"] = sell_trigger
+    config["portfolio_management"]["max_workers"] = max_workers
+    save_config(config)
+    
+    # Fire off the scanner utilizing your precise live configuration limits
+    run_autonomous_quant_scan(
+        current_buy_threshold=buy_threshold,
+        current_sell_trigger=sell_trigger,
+        current_max_workers=max_workers,
+        live_trades_enabled=enable_live
+    )
 
 # --- UI: TOP KPI METRICS ---
 col1, col2, col3, col4 = st.columns(4)
