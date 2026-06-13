@@ -17,7 +17,7 @@ schwab_api:
 
 ml:
   fallback_valuation_threshold: 0.0
-  buy_threshold: 0.40
+  buy_threshold: 0.50
 
 portfolio_management:
   sell_losers: true
