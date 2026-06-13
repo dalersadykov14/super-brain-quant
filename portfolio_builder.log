@@ -22047,3 +22047,26 @@
 2026-06-06 21:10:30,788 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5000 against Threshold=0.4
 2026-06-06 21:10:30,836 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4100 against Threshold=0.4
 2026-06-06 21:10:30,836 - INFO - [portfolio_manager.py:285] - Every provided portfolio target is actively allocated. Loop complete.
+2026-06-13 03:35:53,881 - INFO - [portfolio_manager.py:277] - ===== STARTING STATE ENGINE PASS CYCLE: 1 =====
+2026-06-13 03:35:53,882 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics across 0 active holdings.
+2026-06-13 03:35:54,223 - INFO - [data_ingestion.py:231] - PERF-4: Initializing global SEC mapping session cache.
+2026-06-13 03:35:54,277 - WARNING - [data_ingestion.py:246] - SEC company tickers fetch failed: HTTP 403
+2026-06-13 03:35:54,309 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4599 against Threshold=0.4
+2026-06-13 03:35:54,311 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4807 against Threshold=0.4
+2026-06-13 03:35:54,326 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4372 against Threshold=0.4
+2026-06-13 03:35:54,337 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4902 against Threshold=0.4
+2026-06-13 03:35:54,346 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4807 against Threshold=0.4
+2026-06-13 03:35:54,349 - WARNING - [portfolio_manager.py:176] - Schwab live trading disabled via config. Sandbox simulation mode active.
+2026-06-13 03:35:54,349 - WARNING - [portfolio_manager.py:176] - Schwab live trading disabled via config. Sandbox simulation mode active.
+2026-06-13 03:35:54,349 - WARNING - [portfolio_manager.py:176] - Schwab live trading disabled via config. Sandbox simulation mode active.
+2026-06-13 03:35:54,349 - WARNING - [portfolio_manager.py:176] - Schwab live trading disabled via config. Sandbox simulation mode active.
+2026-06-13 03:35:54,349 - WARNING - [portfolio_manager.py:176] - Schwab live trading disabled via config. Sandbox simulation mode active.
+2026-06-13 03:35:54,351 - INFO - [portfolio_manager.py:299] - Pipeline State Complete: Tracked Assets=5 | Processed Buys=5
+2026-06-13 03:35:54,351 - INFO - [portfolio_manager.py:277] - ===== STARTING STATE ENGINE PASS CYCLE: 2 =====
+2026-06-13 03:35:54,351 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics across 5 active holdings.
+2026-06-13 03:35:54,364 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4599 against Threshold=0.4
+2026-06-13 03:35:54,377 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4807 against Threshold=0.4
+2026-06-13 03:35:54,390 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4372 against Threshold=0.4
+2026-06-13 03:35:54,403 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4902 against Threshold=0.4
+2026-06-13 03:35:54,416 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4807 against Threshold=0.4
+2026-06-13 03:35:54,416 - INFO - [portfolio_manager.py:285] - Every provided portfolio target is actively allocated. Loop complete.
