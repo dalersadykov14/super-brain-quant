@@ -22117,3 +22117,24 @@
 2026-06-16 22:55:10,927 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4734 against Threshold=0.5
 2026-06-16 22:55:10,928 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4852 against Threshold=0.5
 2026-06-16 22:55:10,937 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4952 against Threshold=0.5
+2026-06-17 22:47:51,437 - INFO - [portfolio_manager.py:287] - ===== STARTING STATE ENGINE PASS CYCLE: 1 (Using Active Cutoff=0.5) =====
+2026-06-17 22:47:51,437 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics against Active Threshold=0.5
+2026-06-17 22:47:51,750 - INFO - [data_ingestion.py:232] - PERF-4: Initializing global SEC mapping session cache.
+2026-06-17 22:47:51,890 - WARNING - [data_ingestion.py:255] - SEC mapping fetch failed: 'int' object has no attribute 'zfill'
+2026-06-17 22:47:51,943 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.6090 against Threshold=0.5
+2026-06-17 22:47:51,943 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.6025 against Threshold=0.5
+2026-06-17 22:47:51,962 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5790 against Threshold=0.5
+2026-06-17 22:47:51,986 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.6040 against Threshold=0.5
+2026-06-17 22:47:52,001 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.6090 against Threshold=0.5
+2026-06-17 22:47:52,006 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY GOOGL.
+2026-06-17 22:47:52,008 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY AAPL.
+2026-06-17 22:47:52,010 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY AMD.
+2026-06-17 22:47:52,012 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY NVDA.
+2026-06-17 22:47:52,015 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY MSFT.
+2026-06-17 22:47:52,018 - INFO - [portfolio_manager.py:287] - ===== STARTING STATE ENGINE PASS CYCLE: 2 (Using Active Cutoff=0.5) =====
+2026-06-17 22:47:52,018 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics against Active Threshold=0.5
+2026-06-17 22:47:52,035 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.6090 against Threshold=0.5
+2026-06-17 22:47:52,052 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.6025 against Threshold=0.5
+2026-06-17 22:47:52,069 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5790 against Threshold=0.5
+2026-06-17 22:47:52,086 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.6040 against Threshold=0.5
+2026-06-17 22:47:52,103 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.6090 against Threshold=0.5
