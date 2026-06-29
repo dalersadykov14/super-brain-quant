@@ -22297,3 +22297,12 @@
 2026-06-26 22:18:03,703 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.2492 against Threshold=0.5
 2026-06-26 22:18:03,714 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.2449 against Threshold=0.5
 2026-06-26 22:18:03,724 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.2449 against Threshold=0.5
+2026-06-29 22:12:45,040 - INFO - [portfolio_manager.py:287] - ===== STARTING STATE ENGINE PASS CYCLE: 1 (Using Active Cutoff=0.5) =====
+2026-06-29 22:12:45,041 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics against Active Threshold=0.5
+2026-06-29 22:12:45,847 - INFO - [data_ingestion.py:232] - PERF-4: Initializing global SEC mapping session cache.
+2026-06-29 22:12:45,941 - WARNING - [data_ingestion.py:255] - SEC mapping fetch failed: 'int' object has no attribute 'zfill'
+2026-06-29 22:12:45,962 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.3772 against Threshold=0.5
+2026-06-29 22:12:45,986 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.3858 against Threshold=0.5
+2026-06-29 22:12:45,995 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.3858 against Threshold=0.5
+2026-06-29 22:12:46,010 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.3733 against Threshold=0.5
+2026-06-29 22:12:46,011 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.3854 against Threshold=0.5
