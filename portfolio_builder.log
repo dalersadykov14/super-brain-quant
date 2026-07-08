@@ -22412,3 +22412,16 @@
 2026-07-07 22:14:31,397 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4896 against Threshold=0.5
 2026-07-07 22:14:31,417 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4946 against Threshold=0.5
 2026-07-07 22:14:31,431 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4888 against Threshold=0.5
+2026-07-08 22:12:32,945 - INFO - [portfolio_manager.py:287] - ===== STARTING STATE ENGINE PASS CYCLE: 1 (Using Active Cutoff=0.5) =====
+2026-07-08 22:12:32,945 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics against Active Threshold=0.5
+2026-07-08 22:12:33,225 - INFO - [data_ingestion.py:232] - PERF-4: Initializing global SEC mapping session cache.
+2026-07-08 22:12:33,332 - WARNING - [data_ingestion.py:255] - SEC mapping fetch failed: 'int' object has no attribute 'zfill'
+2026-07-08 22:12:33,345 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4846 against Threshold=0.5
+2026-07-08 22:12:33,345 - WARNING - [portfolio_manager.py:253] - LIQUIDATION PASS ACTION: AMD score decayed below threshold. Triggering sale pipeline.
+2026-07-08 22:12:33,347 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for SELL AMD.
+2026-07-08 22:12:33,348 - INFO - [portfolio_manager.py:255] - Successfully closed exposure position for asset: AMD
+2026-07-08 22:12:33,381 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4846 against Threshold=0.5
+2026-07-08 22:12:33,522 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4766 against Threshold=0.5
+2026-07-08 22:12:33,537 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4666 against Threshold=0.5
+2026-07-08 22:12:33,554 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4716 against Threshold=0.5
+2026-07-08 22:12:33,608 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4611 against Threshold=0.5
