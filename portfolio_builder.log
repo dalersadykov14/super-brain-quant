@@ -23156,3 +23156,21 @@
 2026-09-02 23:09:41,544 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4650 against Threshold=0.5
 2026-09-02 23:09:41,548 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4650 against Threshold=0.5
 2026-09-02 23:09:41,641 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4550 against Threshold=0.5
+2026-09-03 23:07:01,837 - INFO - [portfolio_manager.py:287] - ===== STARTING STATE ENGINE PASS CYCLE: 1 (Using Active Cutoff=0.5) =====
+2026-09-03 23:07:01,837 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics against Active Threshold=0.5
+2026-09-03 23:07:02,577 - INFO - [data_ingestion.py:232] - PERF-4: Initializing global SEC mapping session cache.
+2026-09-03 23:07:02,722 - WARNING - [data_ingestion.py:255] - SEC mapping fetch failed: 'int' object has no attribute 'zfill'
+2026-09-03 23:07:02,755 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4600 against Threshold=0.5
+2026-09-03 23:07:02,790 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5050 against Threshold=0.5
+2026-09-03 23:07:02,823 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4500 against Threshold=0.5
+2026-09-03 23:07:02,835 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4500 against Threshold=0.5
+2026-09-03 23:07:02,858 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5050 against Threshold=0.5
+2026-09-03 23:07:02,862 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY NVDA.
+2026-09-03 23:07:02,865 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY AMD.
+2026-09-03 23:07:02,869 - INFO - [portfolio_manager.py:287] - ===== STARTING STATE ENGINE PASS CYCLE: 2 (Using Active Cutoff=0.5) =====
+2026-09-03 23:07:02,869 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics against Active Threshold=0.5
+2026-09-03 23:07:02,887 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5050 against Threshold=0.5
+2026-09-03 23:07:02,906 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5050 against Threshold=0.5
+2026-09-03 23:07:02,953 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4500 against Threshold=0.5
+2026-09-03 23:07:02,965 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4600 against Threshold=0.5
+2026-09-03 23:07:02,975 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4500 against Threshold=0.5
