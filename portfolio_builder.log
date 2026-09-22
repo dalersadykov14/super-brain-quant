@@ -23400,3 +23400,32 @@
 2026-09-21 23:57:42,620 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5509 against Threshold=0.5
 2026-09-21 23:57:42,783 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5409 against Threshold=0.5
 2026-09-21 23:57:42,948 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5349 against Threshold=0.5
+2026-09-22 23:32:35,469 - INFO - [portfolio_manager.py:287] - ===== STARTING STATE ENGINE PASS CYCLE: 1 (Using Active Cutoff=0.5) =====
+2026-09-22 23:32:35,469 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics against Active Threshold=0.5
+2026-09-22 23:32:35,819 - INFO - [data_ingestion.py:232] - PERF-4: Initializing global SEC mapping session cache.
+2026-09-22 23:32:35,938 - WARNING - [data_ingestion.py:255] - SEC mapping fetch failed: 'int' object has no attribute 'zfill'
+2026-09-22 23:32:35,949 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4312 against Threshold=0.5
+2026-09-22 23:32:35,950 - WARNING - [portfolio_manager.py:253] - LIQUIDATION PASS ACTION: AMD score decayed below threshold. Triggering sale pipeline.
+2026-09-22 23:32:35,952 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for SELL AMD.
+2026-09-22 23:32:35,952 - INFO - [portfolio_manager.py:255] - Successfully closed exposure position for asset: AMD
+2026-09-22 23:32:36,131 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4437 against Threshold=0.5
+2026-09-22 23:32:36,131 - WARNING - [portfolio_manager.py:253] - LIQUIDATION PASS ACTION: MSFT score decayed below threshold. Triggering sale pipeline.
+2026-09-22 23:32:36,133 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for SELL MSFT.
+2026-09-22 23:32:36,133 - INFO - [portfolio_manager.py:255] - Successfully closed exposure position for asset: MSFT
+2026-09-22 23:32:36,302 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4437 against Threshold=0.5
+2026-09-22 23:32:36,302 - WARNING - [portfolio_manager.py:253] - LIQUIDATION PASS ACTION: GOOGL score decayed below threshold. Triggering sale pipeline.
+2026-09-22 23:32:36,305 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for SELL GOOGL.
+2026-09-22 23:32:36,305 - INFO - [portfolio_manager.py:255] - Successfully closed exposure position for asset: GOOGL
+2026-09-22 23:32:36,518 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4437 against Threshold=0.5
+2026-09-22 23:32:36,519 - WARNING - [portfolio_manager.py:253] - LIQUIDATION PASS ACTION: AAPL score decayed below threshold. Triggering sale pipeline.
+2026-09-22 23:32:36,521 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for SELL AAPL.
+2026-09-22 23:32:36,521 - INFO - [portfolio_manager.py:255] - Successfully closed exposure position for asset: AAPL
+2026-09-22 23:32:36,686 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4297 against Threshold=0.5
+2026-09-22 23:32:36,686 - WARNING - [portfolio_manager.py:253] - LIQUIDATION PASS ACTION: NVDA score decayed below threshold. Triggering sale pipeline.
+2026-09-22 23:32:36,688 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for SELL NVDA.
+2026-09-22 23:32:36,688 - INFO - [portfolio_manager.py:255] - Successfully closed exposure position for asset: NVDA
+2026-09-22 23:32:36,733 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4437 against Threshold=0.5
+2026-09-22 23:32:36,749 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4297 against Threshold=0.5
+2026-09-22 23:32:36,755 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4437 against Threshold=0.5
+2026-09-22 23:32:36,761 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4437 against Threshold=0.5
+2026-09-22 23:32:36,773 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4312 against Threshold=0.5
