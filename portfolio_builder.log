@@ -23758,3 +23758,22 @@
 2026-10-16 23:21:55,990 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4408 against Threshold=0.5
 2026-10-16 23:21:56,016 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4839 against Threshold=0.5
 2026-10-16 23:21:56,026 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4887 against Threshold=0.5
+2026-10-20 00:09:56,696 - INFO - [portfolio_manager.py:287] - ===== STARTING STATE ENGINE PASS CYCLE: 1 (Using Active Cutoff=0.5) =====
+2026-10-20 00:09:56,696 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics against Active Threshold=0.5
+2026-10-20 00:09:57,613 - INFO - [data_ingestion.py:232] - PERF-4: Initializing global SEC mapping session cache.
+2026-10-20 00:09:58,012 - WARNING - [data_ingestion.py:255] - SEC mapping fetch failed: 'int' object has no attribute 'zfill'
+2026-10-20 00:09:58,040 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5084 against Threshold=0.5
+2026-10-20 00:09:58,050 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5084 against Threshold=0.5
+2026-10-20 00:09:58,061 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4984 against Threshold=0.5
+2026-10-20 00:09:58,062 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4984 against Threshold=0.5
+2026-10-20 00:09:58,064 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5617 against Threshold=0.5
+2026-10-20 00:09:58,067 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY GOOGL.
+2026-10-20 00:09:58,068 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY MSFT.
+2026-10-20 00:09:58,070 - WARNING - [portfolio_manager.py:181] - Schwab live trading disabled via config. Sandbox simulation mode active for BUY NVDA.
+2026-10-20 00:09:58,073 - INFO - [portfolio_manager.py:287] - ===== STARTING STATE ENGINE PASS CYCLE: 2 (Using Active Cutoff=0.5) =====
+2026-10-20 00:09:58,073 - INFO - [portfolio_manager.py:239] - Evaluating portfolio quality metrics against Active Threshold=0.5
+2026-10-20 00:09:58,081 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5084 against Threshold=0.5
+2026-10-20 00:09:58,090 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5084 against Threshold=0.5
+2026-10-20 00:09:58,098 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.5617 against Threshold=0.5
+2026-10-20 00:09:58,111 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4984 against Threshold=0.5
+2026-10-20 00:09:58,116 - INFO - [ml_inference.py:65] - Target Selection: ML Score Prediction Probability=0.4984 against Threshold=0.5
